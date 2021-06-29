@@ -1,0 +1,45 @@
+29.06.2021 10:17:51: Application (Version 29.06.2021 10:17:50) started
+29.06.2021 10:18:00: Application terminated
+29.06.2021 10:18:33: Application (Version 29.06.2021 10:17:50) started
+29.06.2021 10:18:43: Application terminated
+29.06.2021 10:19:13: Application (Version 29.06.2021 10:19:14) started
+29.06.2021 10:20:18:   Ausfall , 
+29.06.2021 10:20:26: Application terminated
+29.06.2021 10:20:29: Application (Version 29.06.2021 10:19:14) started
+29.06.2021 10:20:32: Application terminated
+29.06.2021 10:22:46: Application (Version 29.06.2021 10:19:14) started
+29.06.2021 11:22:10: Application (Version 29.06.2021 11:22:08) started
+29.06.2021 11:22:15: Application terminated
+29.06.2021 11:23:26: Application (Version 29.06.2021 11:23:08) started
+29.06.2021 11:24:00: Application terminated
+29.06.2021 11:26:50: Application (Version 29.06.2021 11:26:50) started
+29.06.2021 11:27:08: Application terminated
+29.06.2021 11:27:12: Application (Version 29.06.2021 11:27:12) started
+29.06.2021 11:27:20: Application terminated
+29.06.2021 11:27:49: Application (Version 29.06.2021 11:27:48) started
+29.06.2021 11:27:55:   Ausfall , 
+29.06.2021 11:27:57: Application terminated
+29.06.2021 11:28:09: Application (Version 29.06.2021 11:28:08) started
+29.06.2021 11:34:09: Application (Version 29.06.2021 11:34:08) started
+29.06.2021 11:34:17: Application terminated
+29.06.2021 11:34:46: Application (Version 29.06.2021 11:34:46) started
+29.06.2021 11:35:47: Application (Version 29.06.2021 11:35:48) started
+29.06.2021 11:35:59: Application terminated
+29.06.2021 11:36:58: Application (Version 29.06.2021 11:36:58) started
+29.06.2021 11:37:39: Application terminated
+29.06.2021 11:50:26: Application (Version 29.06.2021 11:50:22) started
+29.06.2021 11:51:13: Application terminated
+29.06.2021 11:54:17: Application (Version 29.06.2021 11:54:18) started
+29.06.2021 11:54:46: Application terminated
+29.06.2021 11:58:14: Application (Version 29.06.2021 11:58:14) started
+29.06.2021 11:58:22: Application terminated
+29.06.2021 12:21:15: Application (Version 29.06.2021 12:21:04) started
+29.06.2021 12:22:34: Application terminated
+29.06.2021 12:30:09: Application (Version 29.06.2021 12:30:06) started
+29.06.2021 12:30:13: Application terminated
+29.06.2021 12:31:50: Application (Version 29.06.2021 12:31:50) started
+29.06.2021 12:31:57: Application terminated
+29.06.2021 12:32:16: Application (Version 29.06.2021 12:32:16) started
+29.06.2021 12:32:47: Application terminated
+29.06.2021 12:33:02: Application (Version 29.06.2021 12:32:58) started
+29.06.2021 12:33:12: Application terminated
