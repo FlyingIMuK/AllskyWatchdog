@@ -22,37 +22,42 @@ uses
   IdComponent, IdTCPConnection, IdTCPClient, IdExplicitTLSClientServerBase,
   IdMessageClient, IdSMTPBase, IdSMTP, Vcl.Grids, ColorGrid, Vcl.ComCtrls,
   HSMultiAlarmClock, Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.Buttons,
-  Inifiles, math,system.DateUtils;
+  Inifiles, math, system.DateUtils, TypeEdit;
 
 const
   TimeOut = 5; // Minute (Max. Dateialter)
 
 type
-  TfrmDataWatchdog = class(TForm)
+  TfrmAllskyWatchdog = class(TForm)
     bbnClose: TBitBtn;
     speInterval: TSpinEdit;
     Panel1: TPanel;
     chkEmail: TCheckBox;
     Mail: TButton;
     lbEmail: TListBox;
-    bbnAdd: TBitBtn;
-    bbnDelete: TBitBtn;
+    bbnAddMail: TBitBtn;
+    bbnDeleteMail: TBitBtn;
     IdSMTP1: TIdSMTP;
     HSMultiAlarmClock1: THSMultiAlarmClock;
     StatusBar1: TStatusBar;
     Label2: TLabel;
     chkAutostart: TCheckBox;
     cgdFileList: TXColorGrid;
-    bbnAddPath: TBitBtn;
     bbnCheck: TBitBtn;
-    Label1: TLabel;
-    slePrefix: TEdit;
-    Label3: TLabel;
-    sleExt: TEdit;
-    Label6: TLabel;
-    speTimeout: TSpinEdit;
+    Panel2: TPanel;
     deAllskyPath: TJvDirectoryEdit;
-    StringGrid1: TStringGrid;
+    Label1: TLabel;
+    tedMaxDiff: TTypeEdit;
+    bbnAddPath: TBitBtn;
+    btnDelPath: TButton;
+    Panel3: TPanel;
+    Label4: TLabel;
+    Label5: TLabel;
+    chkPowerManager: TCheckBox;
+    sleDevice: TEdit;
+    sleSocket: TEdit;
+    btnTestPowermanager: TButton;
+    fePowerManager: TJvFilenameEdit;
     (* procedure SmtpCli1RequestDone(Sender: TObject; RqType: TSmtpRequest;
       ErrorCode: Word); *)
     procedure FormCreate(Sender: TObject);
@@ -60,8 +65,8 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure bbnHelpClick(Sender: TObject);
     procedure bbnCloseClick(Sender: TObject);
-    procedure bbnAddClick(Sender: TObject);
-    procedure bbnDeleteClick(Sender: TObject);
+    procedure bbnAddMailClick(Sender: TObject);
+    procedure bbnDeleteMailClick(Sender: TObject);
     procedure CheckData;
 
     procedure NextAlarm;
@@ -78,11 +83,19 @@ type
     procedure btnTestPowermanagerClick(Sender: TObject);
     procedure ReconnectLogger;
     function bIsAllskyDir(sFN: string): Boolean;
-function dAllskyFNToDate(sAllskyFN: string): TDateTime;
+    function dAllskyFNToDate(sAllskyFN: string): TDateTime;
+    procedure btnDelPathClick(Sender: TObject);
+    procedure StringGrid1Click(Sender: TObject);
+    procedure cgdFileListSelectCell(Sender: TObject; ACol, ARow: Integer;
+      var CanSelect: Boolean);
+    procedure deAllskyPathChange(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure ReconnectPowermanager;
   private
     _bMailSent: Boolean;
     hMainHandle, hErrorWindow: HWND;
     _sPath, _sFN, _sExt: string;
+    _iRow: Integer;
 
     { Private-Deklarationen }
   public
@@ -98,11 +111,11 @@ var
   f: text;
   Mutex: THandle;
   h: HWND;
-  frmDataWatchdog: TfrmDataWatchdog;
+  frmAllskyWatchdog: TfrmAllskyWatchdog;
 
 implementation
 
-uses fMsgWin, mGlobProc_B;
+uses fMsgWin, mGlobProc_B, mMUKSunCalc_B, mApiFunctions_B;
 
 {$R *.DFM}
 (* ****************************************************************** *)
@@ -130,13 +143,12 @@ end (* FileOperation *);
 
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.FormCreate(Sender: TObject);
+procedure TfrmAllskyWatchdog.FormCreate(Sender: TObject);
 var
   fIni: TIniFile;
-  sDir, s, sExe, sName, sExtension: string;
+  sDir, sFN, sExe, sName, sExtension: string;
+  i, iMaxDiff: Integer;
   dDate: TDateTime;
-
-  i: Integer;
   rect: TGridRect;
 begin
   bDoWarn := true;
@@ -149,7 +161,7 @@ begin
 
   sExe := Application.ExeName;
   dDate := FileDateToDateTime(FileAge(sExe));
-  Caption := 'Data-Watchdog  ' +
+  Caption := 'Allksy-Watchdog  ' +
   // 'Version ' + sVersionsInfo(sExe) +
     ' (' + DateTimeToStr(dDate) + ')';
 
@@ -165,43 +177,49 @@ begin
   with fIni do
   begin
     speInterval.Value := ReadInteger('Global', 'Interval', 30);
-    speTimeout.Value := ReadInteger('Global', 'Timeout', 30);
 
     chkAutostart.Checked := Readbool('Autostart', 'Enabled', false);
+
+    fePowerManager.text := ReadString('PowerManager', 'Path', '');
+    sleDevice.text := ReadString('PowerManager', 'Device', '');
+    sleSocket.text := ReadString('Powermanager', 'Socket', '');
+    chkPowerManager.Checked:=ReadBool('PowerManager', 'Used', false);
+
     // muss hinter speInterval stehen
     chkEmail.Checked := Readbool('Global', 'SendMail', false);
     i := 1;
     cgdFileList.ClearGrid;
     repeat
 
-      s := ReadString('Files', 'Path' + inttostr(i), '');
-      if s <> '' then
+      sFN := ReadString('Files', 'Path' + inttostr(i), '');
+      iMaxDiff := ReadInteger('Files', 'MaxDiff' + inttostr(i), 30);
+      if sFN <> '' then
       begin
         with cgdFileList do
         begin
           cells[0, 0] := 'Nr';
           cells[1, 0] := 'Path';
-          cells[2, 0] := 'File';
-          cells[3, 0] := 'Ext';
-          cells[4, 0] := 'LastTime';
-          cells[5, 0] := 'Difference';
+          cells[2, 0] := 'Max Difference(min)';
+          cells[3, 0] := 'LastTime';
+          cells[4, 0] := 'Difference';
+
           cells[0, i] := inttostr(i);
-          cells[1, i] := s;
-          cells[2, i] := ReadString('Files', 'Prefix' + inttostr(i), '');
-          cells[3, i] := ReadString('Files', 'Ext' + inttostr(i), '');
+          cells[1, i] := sFN;
+          cells[2, i] := inttostr(iMaxDiff);
         end;
         cgdFileList.RowCount := cgdFileList.RowCount + 1;
       end;
       inc(i);
-    until s = '';
+    until sFN = '';
+    cgdFileList.RowCount := cgdFileList.RowCount - 1;
 
     i := 0;
     repeat
-      s := ReadString('Adresse', 'Nr' + inttostr(i), '');
-      if s <> '' then
-        lbEmail.Items.Add(s);
+      sFN := ReadString('Adresse', 'Nr' + inttostr(i), '');
+      if sFN <> '' then
+        lbEmail.Items.Add(sFN);
       inc(i);
-    until s = '';
+    until sFN = '';
     // AnalyseFileName(feSpectromatExe.Text, sDir, sName, sExtension);
     (* sSpectromatIniFile := sDir + '\' + sName + '.Ini';
       deDataDir.Text := ReadString('Spectromat', 'DataDir', 'c:');
@@ -218,18 +236,19 @@ begin
   end;
 
   _bMailSent := false;
+  _iRow := Badindex;
 
 end;
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.MailClick(Sender: TObject);
+procedure TfrmAllskyWatchdog.MailClick(Sender: TObject);
 begin
-  SendMailToList('Data-Watchdog-Testmail');
+  SendMailToList('Allsky-Watchdog-Testmail');
 end;
 
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.SendMailToList(sMessage: string);
+procedure TfrmAllskyWatchdog.SendMailToList(sMessage: string);
 var
   i: Integer;
 begin
@@ -238,9 +257,15 @@ begin
       'schilke@muk.uni-hannover.de', sMessage);
 
 end;
+
+procedure TfrmAllskyWatchdog.StringGrid1Click(Sender: TObject);
+begin
+end;
+
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmAllskyWatchdog.FormClose(Sender: TObject;
+  var Action: TCloseAction);
 var
   fIni: TIniFile;
   i: Integer;
@@ -256,15 +281,18 @@ begin
       if cgdFileList.cells[1, i] <> '' then
       begin
         WriteString('Files', 'Path' + inttostr(i), cgdFileList.cells[1, i]);
-        WriteString('Files', 'Prefix' + inttostr(i), cgdFileList.cells[2, i]);
-        WriteString('Files', 'Ext' + inttostr(i), cgdFileList.cells[3, i]);
+        WriteInteger('Files', 'MaxDiff' + inttostr(i),
+          StrToInt(cgdFileList.cells[2, i]));
       end;
 
     WriteBool('Autostart', 'Enabled', chkAutostart.Checked);
     WriteInteger('Global', 'Interval', speInterval.Value);
-    WriteInteger('Global', 'Timeout', speTimeout.Value);
 
     WriteBool('Global', 'SendMail', chkEmail.Checked);
+    WriteBool('PowerManager', 'Used', chkPowerManager.Checked);
+    WriteString('PowerManager', 'Path', fePowerManager.text);
+    WriteString('PowerManager', 'Device', sleDevice.text);
+    WriteString('Powermanager', 'Socket', sleSocket.text);
 
     free;
   end;
@@ -272,34 +300,23 @@ begin
 end;
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.bbnHelpClick(Sender: TObject);
-begin (*
-    frmMessageWindow.sCaption := 'SafStat - Der Status von Safir';
-    frmMessageWindow.sMessage := 'Safir-Status ' + scNewLine + scNewLine +
-    'Checkt alle 5 Minuten die ' + scNewLine +
-    'Status-Datei "lastLAST_AUTO_TESTS.txt" und' + scNewLine +
-    'schreibt die letzten 3 Zeilen in eine' + scNewLine +
-    'Datei ins Web: meteo/safstat.txt' + scNewLine +
-    'Wenn eine Station zu alt ist, wird eine email geschickt.' + scNewLine +
-    ' (UF, 30.03.2004)' + scNewLine +
-    ' (HS, 12.11.2008)';
-
-    frmMessageWindow.ShowModal; *)
+procedure TfrmAllskyWatchdog.bbnHelpClick(Sender: TObject);
+begin
 end;
 
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.bbnCloseClick(Sender: TObject);
+procedure TfrmAllskyWatchdog.bbnCloseClick(Sender: TObject);
 begin
   close;
 end;
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.bbnAddClick(Sender: TObject);
+procedure TfrmAllskyWatchdog.bbnAddMailClick(Sender: TObject);
 var
   sInputString: string;
 begin
-  sInputString := InputBox('Data-Watchdog', 'Neue eMail-Adresse', '');
+  sInputString := InputBox('Allsky-Watchdog', 'Neue eMail-Adresse', '');
   if sInputString <> '' then
     lbEmail.Items.Add(sInputString);
 
@@ -307,7 +324,7 @@ end;
 
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.bbnDeleteClick(Sender: TObject);
+procedure TfrmAllskyWatchdog.bbnDeleteMailClick(Sender: TObject);
 var
   i: Integer;
 begin
@@ -319,7 +336,7 @@ begin
 end;
 
 (* ****************************************************************** *)
-function TfrmDataWatchdog.bIsAllskyDir(sFN: string): Boolean;
+function TfrmAllskyWatchdog.bIsAllskyDir(sFN: string): Boolean;
 (* Schema 2021-06-29 *)
 begin
   result := true;
@@ -327,114 +344,115 @@ begin
   result := result and lStrIsInt(copy(sFN, 6, 2));
   result := result and lStrIsInt(copy(sFN, 9, 2));
 end;
+
 (* ****************************************************************** *)
-function TfrmDataWatchdog.dAllskyFNToDate(sAllskyFN: string): TDateTime;
+function TfrmAllskyWatchdog.dAllskyFNToDate(sAllskyFN: string): TDateTime;
 (* wandelt das Datum im Filenamen im Schema
- * 7a210629_084500_UTC+00_0125_42.jpg
- * in ein richtigs Datum um
- *)
+  * 7a210629_084500_UTC+00_0125_42.jpg
+  * in ein richtigs Datum um
+*)
 var
   iYear, iMonth, iDay, iHour, iMinute, iSecond: Word;
 
 begin
-  iYear := StrToIntDef(copy(sAllskyFN, 3, 2), 1900)+2000;
+  iYear := StrToIntDef(copy(sAllskyFN, 3, 2), 1900) + 2000;
   iMonth := StrToIntDef(copy(sAllskyFN, 5, 2), 1);
   iDay := StrToIntDef(copy(sAllskyFN, 7, 2), 1);
   iHour := StrToIntDef(copy(sAllskyFN, 10, 2), 1);
-  iMinute:= StrToIntDef(copy(sAllskyFN, 12, 2), 1);
+  iMinute := StrToIntDef(copy(sAllskyFN, 12, 2), 1);
   iSecond := StrToIntDef(copy(sAllskyFN, 15, 2), 1);
-  Result := EncodeDateTime(iYear, iMonth, iDay,iHour,iMinute,iSecond,0);
+  result := EncodeDateTime(iYear, iMonth, iDay, iHour, iMinute, iSecond, 0);
 
 end;
 
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.CheckData;
+procedure TfrmAllskyWatchdog.CheckData;
 
 var
-  i: Integer;
+  i, iMaxDiffMin: Integer;
   s, sDir, sPrefix, sFN, sMessage: string;
-  dTimeDif: TDateTime;
+  dLastAllsky, dTimeDif: TDateTime;
   sr: TSearchRec;
   slsDirList: TStringList;
 begin
   slsDirList := TStringList.Create;
   sMessage := '';
-  // for i := 1 to cgdFileList.RowCount do
-  i := 1;
-  sDir := cgdFileList.cells[1, i] + '\*.*';
-  if sDir <> '' then
+  for i := 1 to cgdFileList.RowCount do
   begin
-    if SysUtils.FindFirst(sDir, faDirectory, sr) = 0 then
+    slsDirList.Clear;
+    sDir := cgdFileList.cells[1, i];
+    if sDir <> '' then
     begin
-      repeat
-        sFN := sr.Name;
-        if ((sr.Attr and faDirectory) = sr.Attr) and (sFN[1] <> '.') then
-        begin
-          if bIsAllskyDir(sr.Name) then
+      sDir := cgdFileList.cells[1, i] + '\*.*';
+      if SysUtils.FindFirst(sDir, faDirectory, sr) = 0 then
+      begin
+        repeat
+          sFN := sr.Name;
+          if ((sr.Attr and faDirectory) = sr.Attr) and (sFN[1] <> '.') then
           begin
-            slsDirList.Add(sFN);
+            if bIsAllskyDir(sr.Name) then
+            begin
+              slsDirList.Add(sFN);
+            end;
           end;
+        until FindNext(sr) <> 0;
+        FindClose(sr);
+      end;
+
+      slsDirList.Sort;
+      // showmessage(slsDirList[slsDirList.Count - 1]);
+      sDir := cgdFileList.cells[1, i] + '\' + slsDirList[slsDirList.Count - 1];
+      // lette Datei Suchen
+
+      if SysUtils.FindFirst(sDir + '\*.jpg', faAnyFile, sr) = 0 then
+      begin
+        repeat
+          sFN := sr.Name;
+        until FindNext(sr) <> 0;
+        FindClose(sr);
+      end;
+      // Showmessage (sFN );       // '7a210629_084500_UTC+00_0125_42.jpg'
+      dLastAllsky := dAllskyFNToDate(sFN);
+      dTimeDif := NowUTC - dLastAllsky;
+      // s := sDir + '\' + cgdFileList.cells[2, i] + FormatDateTime('yyyymmdd',
+      // now) + '.' + cgdFileList.cells[3, i];
+      // dTimeDif := dCheckLastDate(s);
+      cgdFileList.cells[3, i] := FormatDateTime('hh:mm', dLastAllsky);
+      cgdFileList.cells[4, i] := FormatDateTime('hh:mm', dTimeDif);
+      iMaxDiffMin := StrToIntDef(cgdFileList.cells[2, i], 30);
+      if dTimeDif < iMaxDiffMin / (24 * 60) then
+      begin // Zeitdifferenz mehr als 1 h und mehr als 15 min
+        cgdFileList.RowColor[i] := clLime;
+      end
+      else if frac(Now) > iMaxDiffMin / (24 * 60) then
+      begin
+        cgdFileList.RowColor[i] := clRed;
+        sMessage := sMessage + '  Ausfall Allsky';
+      end;
+      cgdFileList.Repaint;
+      if sMessage <> '' then
+      begin // Ausfall !!
+        FailedMessage(sMessage);
+        lWriteToErrorLog(sGlobLogFile, sMessage);
+      end
+      else
+      begin
+        if _bMailSent then
+        begin
+          SendMailToList('Wieder OK');
+          lWriteToErrorLog(sGlobLogFile, 'Wieder OK');
         end;
-      until FindNext(sr) <> 0;
-      FindClose(sr);
+        _bMailSent := false;
+      end;
     end;
-
   end;
-  slsDirList.Sort;
- // showmessage(slsDirList[slsDirList.Count - 1]);
-  sDir := cgdFileList.cells[1, i] + '\' + slsDirList[slsDirList.Count - 1];
-  // lette Datei Suchen
-
-  if SysUtils.FindFirst(sDir+'\*.jpg', faAnyFile, sr) = 0 then
-  begin
-    repeat
-      sFN := sr.Name;
-    until FindNext(sr) <> 0;
-    FindClose(sr);
-  end;
- // Showmessage (sFN );       // '7a210629_084500_UTC+00_0125_42.jpg'
-  if Now - dAllskyFNToDate(sFN)>1/24 then
-   showmessage('Zu alt');
-
-  // s := sDir + '\' + cgdFileList.cells[2, i] + FormatDateTime('yyyymmdd',
-  // now) + '.' + cgdFileList.cells[3, i];
-  // dTimeDif := dCheckLastDate(s);
-  // cgdFileList.cells[4, i] := FormatDateTime('hh:mm', dTimeDif);
-  // dTimeDif := frac(now) - dTimeDif;
-  // cgdFileList.cells[5, i] := FormatDateTime('hh:mm', dTimeDif);
-  // if dTimeDif < speTimeout.Value / (24 * 60) then
-  // begin // Zeitdifferenz mehr als 1 h und mehr als 15 min
-  // cgdFileList.RowColor[i] := clLime;
-  // end
-  // else if frac(now) > speTimeout.Value / (24 * 60) then
-  // begin
-  // cgdFileList.RowColor[i] := clRed;
-  // sMessage := sMessage + '  Ausfall ' + cgdFileList.cells[2, i] + ', ';
-  //
-  // end;
-  cgdFileList.Repaint;
-  if sMessage <> '' then
-  begin // Ausfall !!
-    FailedMessage(sMessage);
-    lWriteToErrorLog(sGlobLogFile, sMessage);
-  end
-  else
-  begin
-    if _bMailSent then
-    begin
-      SendMailToList('Wieder OK');
-      lWriteToErrorLog(sGlobLogFile, 'Wieder OK');
-    end;
-    _bMailSent := false;
-  end;
-
   slsDirList.free;
 end;
 
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.chkAutostartClick(Sender: TObject);
+procedure TfrmAllskyWatchdog.chkAutostartClick(Sender: TObject);
 begin
   if chkAutostart.Checked then
   begin
@@ -449,11 +467,11 @@ end;
 
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.NextAlarm;
+procedure TfrmAllskyWatchdog.NextAlarm;
 var
   dTime: TDateTime;
 begin
-  dTime := now + speInterval.Value / (24 * 60);
+  dTime := Now + speInterval.Value / (24 * 60);
   StatusBar1.Panels[0].text := 'NextAlarm: ' +
     FormatDateTime('dd.mm. hh:nn:ss', dTime);
   HSMultiAlarmClock1.aAlarmTime[1] := dTime;
@@ -462,19 +480,23 @@ end;
 
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.HSMultiAlarmClock1Alarm(Sender: TObject);
+procedure TfrmAllskyWatchdog.HSMultiAlarmClock1Alarm(Sender: TObject);
+var
+  fAzi, fZen, fBPLat, fBPLon: Extended;
 begin
   if HSMultiAlarmClock1.aAlarm[1] then
   begin // Timetable
     HSMultiAlarmClock1.aAlarmEnabled[1] := false;
-    CheckData;
+    Muk_zen_azi(fAzi, fZen, fBPLat, fBPLon, 52, 10, Now);
+    if fZen < 80 then
+      CheckData;
     NextAlarm;
   end;
 end;
 
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.FormShow(Sender: TObject);
+procedure TfrmAllskyWatchdog.FormShow(Sender: TObject);
 var
   fIni: TIniFile;
   i: Integer;
@@ -494,7 +516,7 @@ end;
 
 (* ****************************************************************** *)
 
-function TfrmDataWatchdog.dCheckLastDate(sFileName: string): TDateTime;
+function TfrmAllskyWatchdog.dCheckLastDate(sFileName: string): TDateTime;
 var
   s, sLine: string;
   dLastEntry: TDateTime;
@@ -519,113 +541,123 @@ begin
   sToken(s, [' '], true);
   result := StrToTime(s);
 
-  (*
-    lblScanRunning.Caption := 'Spectromat Scanning';
-    lblScanRunning.Font.Color := clLime;
-
-    sDir := deDataDir.Text;
-    if rbDailySubDir.Checked then
-    sDir := sDir + '\' + formatDatetime('yyyymmdd', now);
-    if rbNSubDir.checked then begin
-    s := sNameOfLastDir(sDir, '');
-    sDir := sDir + '\' + s;
-    end;
-
-    dLastFile := dDateofLastFile(sDir, 'txt');
-    lblLastFile.Caption := 'Last Filedate:' + FormatDateTime('dd.mm.yy hh:nn', dLastFile);
-    dNow := Now;
-    if dNow - dLastFile > TimeOut / (24 * 60) then begin
-    lWriteToErrorLog(sGlobLogFile, 'File too old (' + FormatDateTime('dd.mm.yy hh:nn', dLastFile) + ')');
-    MailMessage('File too old (' + FormatDateTime('dd.mm.yy hh:nn', dLastFile) + ')' + ' - Restart Spectromat');
-    KillTask(ExtractFileName(feSpectromatExe.Text));
-    RestartSpectromatAndSkyscanner;
-    end
-    else // dann hat also alles geklappt
-    _bMailSent := false;
-    end
-    else begin
-    lblScanRunning.Caption := 'Spectromat not Scanning';
-    lblScanRunning.Font.Color := clBlack;
-    end;
-  *)
-
 end;
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.FailedMessage(sMessage: string);
+procedure TfrmAllskyWatchdog.deAllskyPathChange(Sender: TObject);
+begin
+  bbnAddPath.Enabled := deAllskyPath.text <> '';
+
+end;
+
+(* ****************************************************************** *)
+
+procedure TfrmAllskyWatchdog.FailedMessage(sMessage: string);
 var
   k: Integer;
 
 begin
   if not _bMailSent then
     SendMailToList(sMessage);
-  (* for k := 0 to lbEmail.Items.Count - 1 do
-    try
-    IdSMTP1.QuickSend('mailgate.uni-hannover.de', sMessage, lbEmail.items[k], 'schilke@muk.uni-hannover.de', sMessage);
-    except
-    lWriteToErrorLog(sGlobLogFile, ' Email an "' + lbEmail.items[k] + '" konnte nicht versandt werden');
-    end; *)
   _bMailSent := true;
 
 end;
 
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.bbnAddPathClick(Sender: TObject);
+procedure TfrmAllskyWatchdog.bbnAddPathClick(Sender: TObject);
 begin
+  cgdFileList.RowCount := cgdFileList.RowCount + 1;
   cgdFileList.cells[0, cgdFileList.RowCount - 1] :=
     inttostr(cgdFileList.RowCount - 1);
   cgdFileList.cells[1, cgdFileList.RowCount - 1] := deAllskyPath.Directory;
-  cgdFileList.cells[2, cgdFileList.RowCount - 1] := slePrefix.text;
-  cgdFileList.cells[3, cgdFileList.RowCount - 1] := sleExt.text;
-  cgdFileList.RowCount := cgdFileList.RowCount + 1;
+  cgdFileList.cells[2, cgdFileList.RowCount - 1] := tedMaxDiff.text;
 end;
 
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.feDataFileAfterDialog(Sender: TObject;
+procedure TfrmAllskyWatchdog.feDataFileAfterDialog(Sender: TObject;
   var Name: string; var Action: Boolean);
 begin
   if Action then
   begin
     AnalyseFileName(name, _sPath, _sFN, _sExt);
 
-    slePrefix.text := copy(_sFN, 1, length(_sFN) - 8);
-    sleExt.text := _sExt;
   end;
 end;
 
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.bbnCheckClick(Sender: TObject);
+procedure TfrmAllskyWatchdog.bbnCheckClick(Sender: TObject);
 begin
   CheckData;
 
 end;
 (* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.btnTestPowermanagerClick(Sender: TObject);
+procedure TfrmAllskyWatchdog.btnTestPowermanagerClick(Sender: TObject);
 begin
-  ReconnectLogger;
+  ReconnectPowermanager;
 end;
-(* ****************************************************************** *)
 
-procedure TfrmDataWatchdog.ReconnectLogger;
+(* ****************************************************************** *)
+procedure TfrmAllskyWatchdog.ReconnectPowermanager;
 var
   sMessage, sParams: string;
 begin
-  //
-  // if not bShellExecute(fePowerManager.Text, '', sMessage) then
-  // showError(sMessage)
-  // else begin
-  // sParams := '-off -' + sleDevice.Text + '  -' + sleSocket1.Text;
-  // lWriteToErrorLog(sGlobLogFile, 'Switch OFF Logger');
-  // bShellExecute(fePowerManager.Text, sParams, sMessage);
-  // sleep(10000); // 10s solten reichen
-  // sParams := '-on -' + sleDevice.Text + '  -' + sleSocket1.Text;
-  // bShellExecute(fePowerManager.Text, sParams, sMessage);
-  // lWriteToErrorLog(sGlobLogFile, 'Switch ON Logger');
-  // end;
+
+  if not bShellExecute(fePowerManager.text, '', sMessage) then
+    showError(sMessage)
+  else
+  begin
+    sParams := '-off -' + sleDevice.text + '  -' + sleSocket.text;
+    lWriteToErrorLog(sGlobLogFile, 'Switch OFF Logger');
+    bShellExecute(fePowerManager.text, sParams, sMessage);
+    sleep(10000); // 10s solten reichen
+    sParams := '-on -' + sleDevice.text + '  -' + sleSocket.text;
+    bShellExecute(fePowerManager.text, sParams, sMessage);
+    lWriteToErrorLog(sGlobLogFile, 'Switch ON Logger');
+  end;
+end;
+
+(* ****************************************************************** *)
+
+procedure TfrmAllskyWatchdog.Button2Click(Sender: TObject);
+var
+  fAzi, fZen, fBPLat, fBPLon: Extended;
+begin
+  Muk_zen_azi(fAzi, fZen, fBPLat, fBPLon, 52, 10, Now);
+  showmessage(FloatToStr(fZen));
+end;
+
+(* ****************************************************************** *)
+
+procedure TfrmAllskyWatchdog.btnDelPathClick(Sender: TObject);
+var
+  i: Integer;
+begin
+
+  showmessage(inttostr(_iRow));
+  cgdFileList.DeleteRow(_iRow);
+  // if i > -1 then
+  // cgdFileList.Items.Delete(i);
+
+end;
+
+(* ****************************************************************** *)
+
+procedure TfrmAllskyWatchdog.cgdFileListSelectCell(Sender: TObject;
+  ACol, ARow: Integer; var CanSelect: Boolean);
+begin
+  _iRow := ARow;
+end;
+
+(* ****************************************************************** *)
+
+procedure TfrmAllskyWatchdog.ReconnectLogger;
+var
+  sMessage, sParams: string;
+begin
 end;
 
 (* ****************************************************************** *)
@@ -634,12 +666,12 @@ initialization
 
 (* Es soll nur eine Instanz laufen *)
 
-Mutex := CreateMutex(nil, true, 'DataWatchdogMutex');
+Mutex := CreateMutex(nil, true, 'AllskyWatchdogMutex');
 if getLastError = ERROR_ALREADY_EXISTS then
 begin
   h := 0;
   repeat
-    h := FindWindowEx(0, h, 'TFrmDataWatchdog', PCHAR('Data-Watchdog'));
+    h := FindWindowEx(0, h, 'TFrmAllskyWatchdog', PCHAR('Allsky-Watchdog'));
   until h <> Application.handle;
   if h <> 0 then
   begin
