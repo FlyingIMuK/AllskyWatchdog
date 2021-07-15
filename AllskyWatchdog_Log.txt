@@ -43,3 +43,148 @@
 29.06.2021 12:32:47: Application terminated
 29.06.2021 12:33:02: Application (Version 29.06.2021 12:32:58) started
 29.06.2021 12:33:12: Application terminated
+29.06.2021 12:38:15: Application (Version 29.06.2021 12:38:10) started
+29.06.2021 12:51:14: Application (Version 29.06.2021 12:51:02) started
+29.06.2021 12:52:27:   Ausfall , 
+29.06.2021 12:54:38: Application terminated
+29.06.2021 12:54:53: Application (Version 29.06.2021 12:54:46) started
+29.06.2021 12:54:56:   Ausfall , 
+29.06.2021 12:55:12: Application terminated
+29.06.2021 12:55:21: Application (Version 29.06.2021 12:55:20) started
+29.06.2021 12:55:43: Application terminated
+29.06.2021 12:55:49: Application (Version 29.06.2021 12:55:48) started
+29.06.2021 12:55:53:   Ausfall , 
+29.06.2021 13:01:23:   Ausfall , 
+29.06.2021 13:01:30: Application terminated
+29.06.2021 13:02:21: Application (Version 29.06.2021 13:02:14) started
+29.06.2021 13:02:33:   Ausfall Allsky7a210629_084500_UTC+00_0125_42.jpg, 
+29.06.2021 13:02:49: Application terminated
+29.06.2021 13:04:06: Application (Version 29.06.2021 13:04:06) started
+29.06.2021 13:04:10:   Ausfall Allsky
+29.06.2021 13:04:20: Application terminated
+29.06.2021 14:49:52: Application (Version 29.06.2021 14:49:06) started
+29.06.2021 14:59:47:   Ausfall Allsky
+29.06.2021 15:06:10: Application (Version 29.06.2021 15:06:08) started
+29.06.2021 15:07:05:   Ausfall Allsky
+29.06.2021 15:07:08: Application terminated
+29.06.2021 15:07:22: Application (Version 29.06.2021 15:07:22) started
+29.06.2021 15:08:20:   Ausfall Allsky
+29.06.2021 15:08:28: Application terminated
+29.06.2021 15:08:43: Application (Version 29.06.2021 15:08:42) started
+29.06.2021 15:09:04: Application terminated
+29.06.2021 15:10:29: Application (Version 29.06.2021 15:10:28) started
+29.06.2021 15:10:33:   Ausfall Allsky
+29.06.2021 15:10:33:   Ausfall Allsky
+29.06.2021 15:10:52: Application (Version 29.06.2021 15:10:52) started
+29.06.2021 15:10:55:   Ausfall Allsky
+29.06.2021 15:10:55:   Ausfall Allsky
+29.06.2021 15:11:04: Application terminated
+29.06.2021 15:11:19: Application (Version 29.06.2021 15:11:18) started
+29.06.2021 15:11:35:   Ausfall Allsky
+29.06.2021 15:12:50:   Ausfall Allsky
+29.06.2021 15:13:31: Application (Version 29.06.2021 15:11:18) started
+29.06.2021 15:13:40:   Ausfall Allsky
+29.06.2021 15:14:16:   Ausfall Allsky
+29.06.2021 15:15:41: Application terminated
+29.06.2021 15:15:45: Application (Version 29.06.2021 15:15:44) started
+29.06.2021 15:15:48:   Ausfall Allsky
+29.06.2021 15:15:49:   Ausfall Allsky
+29.06.2021 15:20:23: Application terminated
+29.06.2021 15:20:29: Application (Version 29.06.2021 15:15:44) started
+29.06.2021 15:20:31:   Ausfall Allsky
+29.06.2021 15:20:31:   Ausfall Allsky
+29.06.2021 15:37:06: Application terminated
+29.06.2021 15:45:02: Application (Version 29.06.2021 15:44:50) started
+29.06.2021 15:45:14: Application terminated
+29.06.2021 15:47:16: Application (Version 29.06.2021 15:47:16) started
+29.06.2021 15:48:32: Application terminated
+29.06.2021 15:58:46: Application (Version 29.06.2021 15:58:46) started
+29.06.2021 15:59:00: Application terminated
+29.06.2021 16:02:24: Application (Version 29.06.2021 16:02:24) started
+29.06.2021 16:02:46: Application terminated
+29.06.2021 16:03:50: Application (Version 29.06.2021 16:03:50) started
+29.06.2021 16:04:02: Application terminated
+29.06.2021 16:04:20: Application (Version 29.06.2021 16:04:20) started
+29.06.2021 16:04:30: Application terminated
+29.06.2021 16:09:25: Application (Version 29.06.2021 16:09:24) started
+29.06.2021 16:09:35: Application terminated
+29.06.2021 16:11:43: Application (Version 29.06.2021 16:11:42) started
+29.06.2021 16:11:51: Application terminated
+29.06.2021 16:12:46: Application (Version 29.06.2021 16:12:46) started
+29.06.2021 16:12:54: Application terminated
+29.06.2021 16:13:39: Application (Version 29.06.2021 16:13:40) started
+29.06.2021 16:14:12: Application terminated
+29.06.2021 16:14:31: Application (Version 29.06.2021 16:14:30) started
+29.06.2021 16:14:53: Application terminated
+29.06.2021 16:14:58: Application (Version 29.06.2021 16:14:58) started
+29.06.2021 16:15:03: Application terminated
+29.06.2021 16:15:52: Application (Version 29.06.2021 16:15:52) started
+29.06.2021 16:16:29: Application terminated
+29.06.2021 16:18:13: Application (Version 29.06.2021 16:18:12) started
+29.06.2021 16:18:52: Application terminated
+29.06.2021 16:25:35: Application (Version 29.06.2021 16:25:34) started
+29.06.2021 16:26:29: Application (Version 29.06.2021 16:26:28) started
+29.06.2021 16:26:37: Application terminated
+29.06.2021 16:26:51: Application (Version 29.06.2021 16:26:50) started
+29.06.2021 16:27:12: Application terminated
+29.06.2021 16:27:17: Application (Version 29.06.2021 16:27:16) started
+29.06.2021 16:28:02: Application (Version 29.06.2021 16:28:02) started
+29.06.2021 16:28:09:   Ausfall Allsky
+29.06.2021 16:28:15:   Ausfall Allsky
+29.06.2021 16:28:27: Application terminated
+29.06.2021 16:30:51: Application (Version 29.06.2021 16:30:50) started
+29.06.2021 16:30:56: Application terminated
+29.06.2021 16:31:15: Application (Version 29.06.2021 16:31:14) started
+29.06.2021 16:31:33: Application terminated
+29.06.2021 16:31:37: Application (Version 29.06.2021 16:31:14) started
+29.06.2021 16:31:41:   Ausfall Allsky
+29.06.2021 16:31:41:   Ausfall Allsky
+29.06.2021 16:31:52: Application terminated
+29.06.2021 16:32:59: Application (Version 29.06.2021 16:32:58) started
+29.06.2021 16:33:02:   Ausfall Allsky
+29.06.2021 16:33:02:   Ausfall Allsky
+29.06.2021 16:33:10: Application terminated
+30.06.2021 12:54:43: Application (Version 30.06.2021 12:54:28) started
+30.06.2021 12:54:59: Application terminated
+30.06.2021 12:57:34: Application (Version 30.06.2021 12:57:34) started
+30.06.2021 12:57:58: Application terminated
+30.06.2021 12:58:09: Application (Version 30.06.2021 12:58:08) started
+30.06.2021 12:58:13:   Ausfall Allsky
+30.06.2021 12:58:13:   Ausfall Allsky
+30.06.2021 12:58:18: Application terminated
+13.07.2021 09:32:09: Application (Version 13.07.2021 09:31:52) started
+13.07.2021 09:34:47: Switch OFF Logger
+13.07.2021 09:34:57: Switch ON Logger
+13.07.2021 09:34:57: Application terminated
+13.07.2021 09:37:43: Application (Version 13.07.2021 09:37:42) started
+13.07.2021 09:37:47: Application terminated
+13.07.2021 09:37:51: Application (Version 13.07.2021 09:37:52) started
+13.07.2021 09:38:10: Switch OFF Logger
+13.07.2021 09:38:37: Switch ON Logger
+13.07.2021 09:38:48: Switch OFF Logger
+13.07.2021 09:38:58: Switch ON Logger
+13.07.2021 09:40:48: Switch OFF Logger
+13.07.2021 09:41:03: Switch ON Logger
+13.07.2021 09:41:06: Application terminated
+13.07.2021 09:41:09: Application (Version 13.07.2021 09:37:52) started
+13.07.2021 09:41:12: Application terminated
+13.07.2021 09:45:17: Application (Version 13.07.2021 09:37:52) started
+13.07.2021 09:45:35: Switch OFF Logger
+13.07.2021 09:45:45: Switch ON Logger
+13.07.2021 09:45:51: Switch OFF Logger
+13.07.2021 09:46:01: Switch ON Logger
+13.07.2021 09:46:07: Application terminated
+13.07.2021 09:51:03: Application (Version 13.07.2021 09:51:04) started
+13.07.2021 09:51:09: Application terminated
+13.07.2021 09:51:56: Application (Version 13.07.2021 09:51:56) started
+13.07.2021 09:52:06: Application terminated
+13.07.2021 10:14:29: Application (Version 13.07.2021 09:51:56) started
+13.07.2021 10:14:32: Application terminated
+13.07.2021 11:14:12: Application (Version 13.07.2021 11:13:36) started
+13.07.2021 11:14:16: Application terminated
+13.07.2021 11:49:38: Application (Version 13.07.2021 11:49:36) started
+13.07.2021 11:49:40: Application terminated
+14.07.2021 12:00:56: Application (Version 14.07.2021 11:59:16) started
+14.07.2021 12:01:27: Application terminated
+14.07.2021 12:01:43: Application (Version 14.07.2021 11:59:16) started
+14.07.2021 12:04:02: Application terminated

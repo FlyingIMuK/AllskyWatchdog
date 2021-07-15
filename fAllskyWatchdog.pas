@@ -505,7 +505,7 @@ begin
   fIni := TIniFile.Create(sGlobIniFile);
   with fIni do
   begin
-    speInterval.Value := ReadInteger('Global', 'Timeout', 30);
+//    speInterval.Value := ReadInteger('Global', 'Timeout', 30);
     chkAutostart.Checked := Readbool('Autostart', 'Enabled', false);
     Application.ProcessMessages;
     chkEmail.Checked := Readbool('Global', 'SendMail', false);
